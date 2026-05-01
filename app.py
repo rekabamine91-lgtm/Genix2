@@ -66,7 +66,7 @@ def get_current_user():
         return {'id': session['user_id'], 'username': session['username'], 'role': session['role']}
     return None
 
-# ==================== قاعدة البيانات ====================
+# ==================== قاعدة البيانات (مع بيانات ثابتة لا تضيع) ====================
 
 def init_database():
     conn = sqlite3.connect(db_path)
@@ -85,6 +85,7 @@ def init_database():
         )
     ''')
     
+    # بيانات ثابتة يتم إدخالها فقط إذا كان الجدول فارغاً
     c.execute("SELECT COUNT(*) FROM employees")
     if c.fetchone()[0] == 0:
         sample_data = [
@@ -93,6 +94,11 @@ def init_database():
             ('EMP003', 'سارة علي', 'مساعدة تنفيذية', 'contract', 45000, '2022-06-20'),
             ('EMP004', 'خالد بن سالم', 'ممرض', 'contract', 50000, '2019-11-10'),
             ('EMP005', 'نادية محفوظ', 'قابلة', 'cadre', 55000, '2023-01-15'),
+            ('EMP006', 'ياسين إبراهيم', 'طبيب عام', 'cadre', 120000, '2021-09-01'),
+            ('EMP007', 'فاطمة الزهراء', 'ممرضة رئيسية', 'cadre', 65000, '2022-03-20'),
+            ('EMP008', 'عبد الرحمان سعيد', 'كاتب', 'contract', 38000, '2023-08-15'),
+            ('EMP009', 'ليلى بن عمر', 'محلل مالي', 'cadre', 85000, '2021-11-01'),
+            ('EMP010', 'كريم دحو', 'مسؤول مشتريات', 'contract', 48000, '2023-01-10'),
         ]
         c.executemany('''INSERT INTO employees (code, name, position, contract_type, base_salary, hire_date) 
                          VALUES (?, ?, ?, ?, ?, ?)''', sample_data)
@@ -113,7 +119,6 @@ def get_db():
 # ==================== دوال الحساب ====================
 
 def calculate_irg(salary):
-    """حساب IRG حسب الشرائح الرسمية"""
     if salary <= 30000:
         return 0
     elif salary <= 80000:
@@ -126,8 +131,7 @@ def calculate_irg(salary):
         return 83500 + (salary - 320000) * 0.40
 
 def calculate_net_salary(base_salary):
-    """حساب الراتب الصافي بعد الخصومات"""
-    allowances = base_salary * 0.15  # منحة الخبرة 15%
+    allowances = base_salary * 0.15
     gross = base_salary + allowances
     irg = calculate_irg(gross)
     cnap = gross * 0.09
@@ -251,7 +255,6 @@ MAIN_TEMPLATE = '''
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        
         :root {
             --primary: #1e3c72;
             --primary-dark: #2a5298;
@@ -264,7 +267,6 @@ MAIN_TEMPLATE = '''
             --text-light: #475569;
             --border: #e2e8f0;
         }
-        
         body.dark {
             --bg: #0f172a;
             --card: #1e293b;
@@ -272,13 +274,8 @@ MAIN_TEMPLATE = '''
             --text-light: #cbd5e1;
             --border: #334155;
         }
-        
         body { background: var(--bg); transition: all 0.3s; }
-        
-        /* Layout */
         .app { display: flex; min-height: 100vh; }
-        
-        /* Sidebar */
         .sidebar {
             width: 280px;
             background: var(--card);
@@ -288,12 +285,10 @@ MAIN_TEMPLATE = '''
             height: 100vh;
             overflow-y: auto;
         }
-        
         .logo { text-align: center; margin-bottom: 40px; }
         .logo h2 { color: var(--primary); font-size: 28px; }
         .flag { width: 80px; margin-bottom: 15px; animation: float 3s ease-in-out infinite; }
         @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
-        
         .nav-item {
             display: flex;
             align-items: center;
@@ -306,10 +301,7 @@ MAIN_TEMPLATE = '''
             transition: all 0.2s;
         }
         .nav-item.active, .nav-item:hover { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; }
-        
         .main-content { flex: 1; margin-right: 280px; padding: 25px 35px; }
-        
-        /* Top Bar */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -318,7 +310,6 @@ MAIN_TEMPLATE = '''
             flex-wrap: wrap;
             gap: 15px;
         }
-        
         .user-badge {
             background: linear-gradient(135deg, #1e3c72, #2a5298);
             padding: 8px 20px;
@@ -328,7 +319,6 @@ MAIN_TEMPLATE = '''
             align-items: center;
             gap: 10px;
         }
-        
         .theme-toggle {
             background: var(--card);
             padding: 8px 18px;
@@ -337,15 +327,12 @@ MAIN_TEMPLATE = '''
             border: 1px solid var(--border);
             color: var(--text-light);
         }
-        
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
-        
         .stat-card {
             background: var(--card);
             border-radius: 20px;
@@ -355,8 +342,6 @@ MAIN_TEMPLATE = '''
         }
         .stat-card:hover { transform: translateY(-3px); }
         .stat-number { font-size: 2rem; font-weight: 800; color: var(--text); }
-        
-        /* Search */
         .search-container { margin-bottom: 20px; position: relative; }
         .search-input {
             width: 100%;
@@ -368,8 +353,6 @@ MAIN_TEMPLATE = '''
             font-size: 14px;
         }
         .search-icon { position: absolute; right: 15px; top: 15px; color: var(--text-light); }
-        
-        /* Buttons */
         .btn-primary {
             background: linear-gradient(135deg, #1e3c72, #2a5298);
             color: white;
@@ -387,8 +370,6 @@ MAIN_TEMPLATE = '''
             cursor: pointer;
             font-size: 12px;
         }
-        
-        /* Table */
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -406,9 +387,7 @@ MAIN_TEMPLATE = '''
         }
         .badge-cadre { background: #05966920; color: #059669; }
         .badge-contract { background: #f59e0b20; color: #f59e0b; }
-        
         .chart-container { height: 250px; margin-top: 20px; }
-        
         @media (max-width: 768px) {
             .sidebar { display: none; }
             .main-content { margin-right: 0; padding: 20px; }
@@ -431,7 +410,6 @@ MAIN_TEMPLATE = '''
             <p>© 2025 Rekab Amine</p>
         </div>
     </aside>
-    
     <main class="main-content">
         <div class="top-bar">
             <div>
@@ -447,15 +425,12 @@ MAIN_TEMPLATE = '''
                 <a href="/logout" style="background: #dc2626; padding: 8px 18px; border-radius: 40px; color: white; text-decoration: none;"><i class="fas fa-sign-out-alt"></i> خروج</a>
             </div>
         </div>
-        
-        <!-- تبويب Dashboard -->
         <div id="tab-dashboard" class="tab-content active">
             <div class="stats-grid">
                 <div class="stat-card"><div class="stat-number">{{ stats.count }}</div><div>👥 إجمالي الموظفين</div></div>
                 <div class="stat-card"><div class="stat-number">{{ stats.total_payroll }} دج</div><div>💰 كتلة الأجور</div></div>
                 <div class="stat-card"><div class="stat-number">{{ stats.avg_salary }} دج</div><div>📊 متوسط الراتب</div></div>
             </div>
-            
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="stat-card">
                     <h4><i class="fas fa-university"></i> ميزان الاقتطاعات</h4>
@@ -474,8 +449,6 @@ MAIN_TEMPLATE = '''
                 </div>
             </div>
         </div>
-        
-        <!-- تبويب الموظفين -->
         <div id="tab-employees" class="tab-content" style="display: none;">
             <div class="stat-card">
                 <h3><i class="fas fa-list-ul"></i> قائمة الموظفين</h3>
@@ -493,12 +466,10 @@ MAIN_TEMPLATE = '''
                     </form>
                 </div>
                 {% endif %}
-                
                 <div class="search-container">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" id="searchInput" class="search-input" placeholder="بحث بالاسم أو الكود..." onkeyup="filterTable()">
                 </div>
-                
                 <div style="overflow-x: auto;">
                     <table class="data-table" id="empTable">
                         <thead>
@@ -514,4 +485,161 @@ MAIN_TEMPLATE = '''
                                 <td><span class="badge {{ 'badge-cadre' if emp.contract_type == 'cadre' else 'badge-contract' }}">{{ 'إطار' if emp.contract_type == 'cadre' else 'متعاقد' }}</span></td>
                                 <td>{{ "%.0f"|format(emp.base_salary) }} دج</td>
                                 <td style="color: #059669; font-weight: bold;">{{ "%.0f"|format(emp.net) }} دج</td>
-                                {% if is
+                                {% if is_admin %}
+                                <td><a href="/delete/{{ emp.id }}" class="btn-danger" style="text-decoration: none;" onclick="return confirm('حذف موظف؟')">🗑️ حذف</a></td>
+                                {% endif %}
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="{% if is_admin %}8{% else %}7{% endif %}" style="text-align: center;">✨ لا يوجد موظفون بعد</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="tab-payroll" class="tab-content" style="display: none;">
+            <div class="stat-card">
+                <h3><i class="fas fa-calendar-alt"></i> الرواتب الشهرية</h3>
+                <p style="color: var(--text-light); margin-bottom: 20px;">قريباً - إنشاء كشوف الرواتب وتصديرها</p>
+                <button class="btn-primary" onclick="alert('سيتم تصدير تقرير الرواتب قريباً')"><i class="fas fa-file-excel"></i> تصدير Excel</button>
+                <button class="btn-primary" onclick="window.print()" style="margin-right: 10px;"><i class="fas fa-print"></i> طباعة</button>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+    const tabs = document.querySelectorAll('.nav-item');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const pageTitle = document.getElementById('page-title');
+    const titles = { dashboard: '🏦 لوحة القيادة', employees: '👥 إدارة الموظفين', payroll: '💰 الرواتب' };
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabId = tab.getAttribute('data-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            tabContents.forEach(content => content.style.display = 'none');
+            document.getElementById(`tab-${tabId}`).style.display = 'block';
+            if(titles[tabId]) pageTitle.innerText = titles[tabId];
+        });
+    });
+    function filterTable() {
+        let input = document.getElementById('searchInput');
+        if(!input) return;
+        let filter = input.value.toUpperCase();
+        let table = document.getElementById('empTable');
+        let tr = table.getElementsByTagName('tr');
+        for(let i = 1; i < tr.length; i++) {
+            let td = tr[i].getElementsByTagName('td');
+            if(td.length > 0) {
+                let text = (td[1]?.innerText + td[2]?.innerText).toUpperCase();
+                tr[i].style.display = text.indexOf(filter) > -1 ? '' : 'none';
+            }
+        }
+    }
+    if(localStorage.getItem('dark') === 'true') document.body.classList.add('dark');
+    {% if stats.cadres is defined and stats.contracts is defined %}
+    const ctx = document.getElementById('distributionChart')?.getContext('2d');
+    if(ctx) {
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: { labels: ['إطارات', 'متعاقدين'], datasets: [{ data: [{{ stats.cadres }}, {{ stats.contracts }}], backgroundColor: ['#1e3c72', '#2a5298'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom', rtl: true } } }
+        });
+    }
+    {% endif %}
+</script>
+</body>
+</html>
+'''
+
+# ==================== المسارات الرئيسية ====================
+
+@app.route('/')
+@login_required
+def index():
+    user = get_current_user()
+    is_admin = user['role'] == 'admin'
+    
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT id, code, name, position, contract_type, base_salary FROM employees WHERE status = 'actif'")
+    rows = c.fetchall()
+    conn.close()
+    
+    employees = []
+    total_net = 0
+    total_cnas = 0
+    total_irg = 0
+    cadres = 0
+    contracts = 0
+    
+    for row in rows:
+        salary_data = calculate_net_salary(row['base_salary'])
+        total_net += salary_data['net']
+        total_cnas += salary_data['cnap']
+        total_irg += salary_data['irg']
+        if row['contract_type'] == 'cadre':
+            cadres += 1
+        else:
+            contracts += 1
+        employees.append({
+            'id': row['id'],
+            'code': row['code'],
+            'name': row['name'],
+            'position': row['position'] or '',
+            'contract_type': row['contract_type'] or 'cadre',
+            'base_salary': row['base_salary'],
+            'net': salary_data['net']
+        })
+    
+    stats = {
+        'count': len(employees),
+        'total_payroll': f"{total_net:,.0f}",
+        'avg_salary': f"{total_net/len(employees):,.0f}" if employees else "0",
+        'total_cnas': f"{total_cnas:,.0f}",
+        'total_irg': f"{total_irg:,.0f}",
+        'total_deductions': f"{total_cnas + total_irg:,.0f}",
+        'cadres': cadres,
+        'contracts': contracts
+    }
+    
+    return render_template_string(MAIN_TEMPLATE, employees=employees, stats=stats, user=user, is_admin=is_admin)
+
+@app.route('/add', methods=['POST'])
+@admin_required
+def add_employee():
+    name = request.form['name']
+    position = request.form.get('position', '')
+    salary = float(request.form['salary']) if request.form['salary'] else 50000
+    contract_type = request.form.get('contract_type', 'cadre')
+    
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT MAX(id) FROM employees")
+    max_id = c.fetchone()[0] or 0
+    code = f"EMP{max_id + 1:04d}"
+    
+    c.execute('''INSERT INTO employees (code, name, position, contract_type, base_salary, hire_date) 
+                 VALUES (?, ?, ?, ?, ?, ?)''',
+              (code, name, position, contract_type, salary, datetime.now().strftime('%Y-%m-%d')))
+    conn.commit()
+    conn.close()
+    return redirect('/')
+
+@app.route('/delete/<int:emp_id>')
+@admin_required
+def delete_employee(emp_id):
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("DELETE FROM employees WHERE id = ?", (emp_id,))
+    conn.commit()
+    conn.close()
+    return redirect('/')
+
+@app.route('/health')
+def health():
+    return jsonify({'status': 'running'})
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
