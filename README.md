@@ -1,2 +1,18 @@
-# Genix2
-Genix Pro: An intelligent administrative and financial management system tailored for the Algerian healthcare sector. Handles payroll, IRG/CNAS calculations, and employee tracking with a professional dashboard
+# 🏦 Genix Pro - نظام الإدارة المالية الذكي
+
+نظام متطور مصمم لقطاع الصحة في الجزائر، يهدف إلى رقمنة وتنسيق العمليات المالية والإدارية (أجور، منح، اقتطاعات) بين المؤسسات والخزينة.
+
+## ✨ المميزات الأساسية
+- 📊 **لوحة قيادة تفاعلية:** متابعة استهلاك الميزانية وكتلة الأجور لحظياً.
+- 💰 **حسابات دقيقة:** معالجة آليات الـ IRG و CNAS وفقاً للجريدة الرسمية.
+- 👥 **إدارة الموظفين:** قاعدة بيانات كاملة للـ 1500 موظف (إطارات، متعاقدين، أعوان).
+- 🔐 **نظام أمان متقدم:** مستويات وصول مختلفة (مدير / مشاهد).
+
+## 🛠 التكنولوجيا
+- **Language:** Python 3.11
+- **Framework:** Flask
+- **Deployment:** Railway / Gunicorn
+- **Database:** SQLite
+
+## 👤 المطور
+**Rekab Amine** - خبير إداري ومطور أنظمة رقمية.
